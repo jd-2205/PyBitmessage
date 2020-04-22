@@ -37,7 +37,8 @@ class sqlThread(threading.Thread):
         """Process SQL queries from `.helper_sql.sqlSubmitQueue`"""
         helper_sql.sql_available = True
         config_ready.wait()
-        self.conn = sqlite3.connect(state.appdata + 'messages.dat')
+        self.conn = sqlite3.connect(
+            os.path.join(state.appdata, 'messages.dat'))
         self.conn.text_factory = str
         self.cur = self.conn.cursor()
 
