@@ -6,11 +6,11 @@ Namecoin queries
 import base64
 import httplib
 import json
-import os
 import socket
 import sys
 
 import defaults
+import paths
 from addresses import decodeAddress
 from bmconfigparser import config
 from debug import logger
@@ -288,33 +288,6 @@ class namecoinConnection(object):
             raise Exception("Socket error in RPC connection: %s" % exc)
 
 
-def lookupNamecoinFolder():
-    """
-    Look up the namecoin data folder.
-
-    .. todo:: Check whether this works on other platforms as well!
-    """
-
-    app = "namecoin"
-    from os import path, environ
-    if sys.platform == "darwin":
-        if "HOME" in environ:
-            dataFolder = path.join(os.environ["HOME"],
-                                   "Library/Application Support/", app) + "/"
-        else:
-            sys.exit(
-                "Could not find home folder, please report this message"
-                " and your OS X version to the BitMessage Github."
-            )
-
-    elif "win32" in sys.platform or "win64" in sys.platform:
-        dataFolder = path.join(environ["APPDATA"], app) + "\\"
-    else:
-        dataFolder = path.join(environ["HOME"], ".%s" % app) + "/"
-
-    return dataFolder
-
-
 def ensureNamecoinOptions():
     """
     Ensure all namecoin options are set, by setting those to default values
@@ -333,7 +306,7 @@ def ensureNamecoinOptions():
     # Try to read user/password from .namecoin configuration file.
     defaultUser = ""
     defaultPass = ""
-    nmcFolder = lookupNamecoinFolder()
+    nmcFolder = paths.lookupUserconfigDir('namecoin')
     nmcConfig = nmcFolder + "namecoin.conf"
     try:
         nmc = open(nmcConfig, "r")
