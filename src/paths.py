@@ -56,6 +56,11 @@ def lookupAppdataFolder():
         dataFolder = os.path.join(
             os.getenv('APPDATA'), APPNAME
         ).decode(sys.getfilesystemencoding(), 'ignore') + os.path.sep
+        try:
+            os.path.isdir(dataFolder)
+        except WindowsError:
+            from appdirs import user_data_dir
+            dataFolder = user_data_dir('PyBitmessage', False)
     else:
         try:
             dataFolder = os.path.join(os.environ['XDG_CONFIG_HOME'], APPNAME)
