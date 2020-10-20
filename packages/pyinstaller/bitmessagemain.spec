@@ -14,7 +14,7 @@ arch = 32 if ctypes.sizeof(ctypes.c_voidp) == 4 else 64
 cdrivePath = site_root[0:3]
 srcPath = os.path.join(spec_root[:-20], "pybitmessage")
 sslName = 'OpenSSL-Win%i' % arch
-openSSLPath = os.path.join(cdrivePath, sslName)
+openSSLPath = os.getenv('OPENSSL_DIR') or os.path.join(cdrivePath, sslName)
 msvcrDllPath = os.path.join(cdrivePath, "windows", "system32")
 outPath = os.path.join(spec_root, "bitmessagemain")
 qtBase = "PyQt4"
@@ -96,12 +96,19 @@ excluded_binaries = [
 ]
 a.binaries = TOC([x for x in a.binaries if x[0] not in excluded_binaries])
 
+ext_lib = os.path.join('bitmsghash', 'bitmsghash%i.dll' % arch)
+
+if os.path.isfile(ext_lib):
+    ext_lib = (ext_lib, os.path.join(srcPath, ext_lib), 'BINARY')
+else:
+    ext_lib = (
+        os.path.join('bitmsghash', 'bitmsghash.pyd'),
+	os.path.join(srcPath, 'bitmsghash', 'bitmsghash.pyd'), 'EXTENSION')
+
 a.binaries += [
     # No effect: libeay32.dll will be taken from PyQt if installed
     ('libeay32.dll', os.path.join(openSSLPath, 'libeay32.dll'), 'BINARY'),
-    (os.path.join('bitmsghash', 'bitmsghash%i.dll' % arch),
-        os.path.join(srcPath, 'bitmsghash', 'bitmsghash%i.dll' % arch),
-        'BINARY'),
+    ext_lib,
     (os.path.join('bitmsghash', 'bitmsghash.cl'),
         os.path.join(srcPath, 'bitmsghash', 'bitmsghash.cl'), 'BINARY'),
     (os.path.join('sslkeys', 'cert.pem'),
