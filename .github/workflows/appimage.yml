@@ -1,0 +1,32 @@
+name: AppImage build
+
+on:
+  push:
+  pull_request:
+    branches: 'v0.6'
+
+jobs:
+  build-appimage:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install apt dependencies
+      run: |
+        sudo apt-get install -yq --no-install-suggests --no-install-recommends \
+        build-essential libcap-dev libssl-dev python-all-dev \
+        debhelper dh-python python-stdeb
+    - name: Build deb
+      run: |
+        python setup.py --command-packages=stdeb.command bdist_deb
+    - name: Build AppImage
+      run: buildscripts/appimage.sh
+    - uses: actions/upload-artifact@v2
+      with:
+        name: deb
+        path: deb_dist/*.deb
+    - uses: actions/upload-artifact@v2
+      with:
+        name: AppImage
+        path: out/*.AppImage*
