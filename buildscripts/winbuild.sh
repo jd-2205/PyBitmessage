@@ -18,7 +18,8 @@ function download_sources_32 {
 		https://web.archive.org/web/20210420044701/https://download.microsoft.com/download/1/1/1/1116b75a-9ec3-481a-a3c8-1777b5381140/vcredist_x86.exe \
 		https://github.com/Bitmessage/ThirdPartyLibraries/blob/master/PyQt${PYQT_VERSION}-x32.exe?raw=true \
 		https://github.com/Bitmessage/ThirdPartyLibraries/blob/master/Win32OpenSSL-${OPENSSL_VERSION}.exe?raw=true \
-		https://github.com/Bitmessage/ThirdPartyLibraries/blob/master/pyopencl-2015.1-cp27-none-win32.whl?raw=true
+		https://github.com/Bitmessage/ThirdPartyLibraries/blob/master/pyopencl-2015.1-cp27-none-win32.whl?raw=true \
+		https://web.archive.org/web/20190720195601/https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi
 }
 
 function download_sources_64 {
@@ -64,8 +65,10 @@ function install_python(){
 		wine msiexec -i python-${PYTHON_VERSION}.msi /q /norestart
 		# MSVCR 2008 required for Windows XP
 		cd ${SRCPATH} || exit 1
-		echo "Installing vc_redist (2008) for 32 bit "
+		echo "Installing vc_redist (2008) for 32 bit"
 		wine vcredist_x86.exe /Q
+		echo "Installing vcpython27"
+		wine msiexec -i VCForPython27.msi /qn /norestart
 	fi
         echo "Installing pytools 2020.2"
         # last version compatible with python 2
