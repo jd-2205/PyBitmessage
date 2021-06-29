@@ -95,7 +95,7 @@ function install_openssl(){
 	else
 		echo "Installing OpenSSL ${OPENSSL_VERSION} 32b"
 		wine Win32OpenSSL-${OPENSSL_VERSION}.exe  /q /norestart /silent /verysilent /sp- /suppressmsgboxes
-		export OPENSSL_DIR="$HOME/.wine64/drive_c/OpenSSL-Win32"
+		export OPENSSL_DIR="C:\\OpenSSL-Win32"
 	fi
 }
 
