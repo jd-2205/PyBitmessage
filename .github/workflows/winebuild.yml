@@ -1,0 +1,24 @@
+name: Build Windows 32bit exe
+
+on:
+  push:
+  pull_request:
+    branches: 'v0.6'
+
+jobs:
+  build-exe:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install apt dependencies
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install -yq --no-install-recommends \
+        build-essential libcap-dev libssl-dev python-all-dev \
+        wine-stable winetricks wine32 wine64 mingw-w64 xvfb
+    - name: Build
+      run: |
+        xvfb-run i386 buildscripts/winbuild.sh
