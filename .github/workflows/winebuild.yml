@@ -20,5 +20,17 @@ jobs:
         build-essential libcap-dev libssl-dev python-all-dev \
         wine-stable winetricks wine32 wine64 mingw-w64 xvfb
     - name: Build
+      id: build
       run: |
         xvfb-run i386 buildscripts/winbuild.sh
+        echo "::set-output name=asset_path::packages/pyinstaller/dist/*.exe"
+    - name: Release Continuous
+      if: ${{ github.ref == 'refs/heads/ci' }}
+      uses: softprops/action-gh-release@master
+      with:
+        prerelease: true
+        tag_name: continuous
+        target_commitish: ${{ github.sha }}
+        files: ${{ steps.build.outputs.asset_path }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
