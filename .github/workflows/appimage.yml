@@ -11,6 +11,21 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
+    - name: Remove prev tag
+      if: ${{ github.ref == 'refs/heads/ci' }}
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          try {
+              await github.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "tags/continuous"
+              })
+          } catch (e) {
+            console.log("The continuous doesn't exist yet: " + e)
+          }
     - uses: actions/checkout@v2
     - name: Install apt dependencies
       run: |
@@ -18,15 +33,24 @@ jobs:
         build-essential libcap-dev libssl-dev python-all-dev \
         debhelper dh-python python-stdeb
     - name: Build deb
+      id: deb
       run: |
         python setup.py --command-packages=stdeb.command bdist_deb
+        echo "::set-output name=asset_path::deb_dist/*.deb"
     - name: Build AppImage
-      run: buildscripts/appimage.sh
-    - uses: actions/upload-artifact@v2
+      id: appimage
+      run: |
+        buildscripts/appimage.sh
+        echo "::set-output name=asset_path::out/*.AppImage*"
+    - name: Release Continuous
+      if: ${{ github.ref == 'refs/heads/ci' }}
+      uses: softprops/action-gh-release@master
       with:
-        name: deb
-        path: deb_dist/*.deb
-    - uses: actions/upload-artifact@v2
-      with:
-        name: AppImage
-        path: out/*.AppImage*
+        prerelease: true
+        tag_name: continuous
+        target_commitish: ${{ github.sha }}
+        files: |
+          ${{ steps.deb.outputs.asset_path }}
+          ${{ steps.appimage.outputs.asset_path }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
