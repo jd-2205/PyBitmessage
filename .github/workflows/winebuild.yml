@@ -24,6 +24,7 @@ jobs:
       run: |
         xvfb-run i386 buildscripts/winbuild.sh
         echo "::set-output name=asset_path::packages/pyinstaller/dist/*.exe"
+        sha256sum ${{ steps.build.outputs.asset_path }} >> checksum.txt
     - name: Release Continuous
       if: ${{ github.ref == 'refs/heads/ci' }}
       uses: softprops/action-gh-release@master
@@ -31,6 +32,8 @@ jobs:
         prerelease: true
         tag_name: continuous
         target_commitish: ${{ github.sha }}
+        body_path: checksum.txt
+        append_body: true
         files: ${{ steps.build.outputs.asset_path }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
