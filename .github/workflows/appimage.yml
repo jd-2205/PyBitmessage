@@ -46,6 +46,8 @@ jobs:
       run: |
         sha256sum ${{ steps.deb.outputs.asset_path }} >> checksum.txt
         sha256sum ${{ steps.appimage.outputs.asset_path }} >> checksum.txt
+        cut -d '/' -f 2 checksum.txt >> body.txt
+        cut -d ' ' -f 1 checksum.txt >> body.txt
     - name: Release Continuous
       if: ${{ github.ref == 'refs/heads/ci' }}
       uses: softprops/action-gh-release@master
@@ -53,7 +55,8 @@ jobs:
         prerelease: true
         tag_name: continuous
         target_commitish: ${{ github.sha }}
-        body_path: checksum.txt
+        body_path: body.txt
+        append_body: true
         files: |
           ${{ steps.deb.outputs.asset_path }}
           ${{ steps.appimage.outputs.asset_path }}
