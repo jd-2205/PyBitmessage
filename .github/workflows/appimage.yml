@@ -42,6 +42,10 @@ jobs:
       run: |
         buildscripts/appimage.sh
         echo "::set-output name=asset_path::out/*.AppImage*"
+    - name: Checksums
+      run: |
+        sha256sum ${{ steps.deb.outputs.asset_path }} >> checksum.txt
+        sha256sum ${{ steps.appimage.outputs.asset_path }} >> checksum.txt
     - name: Release Continuous
       if: ${{ github.ref == 'refs/heads/ci' }}
       uses: softprops/action-gh-release@master
@@ -49,6 +53,7 @@ jobs:
         prerelease: true
         tag_name: continuous
         target_commitish: ${{ github.sha }}
+        body_path: checksum.txt
         files: |
           ${{ steps.deb.outputs.asset_path }}
           ${{ steps.appimage.outputs.asset_path }}
