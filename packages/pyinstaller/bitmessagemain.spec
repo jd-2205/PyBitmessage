@@ -7,7 +7,7 @@ import time
 from PyInstaller.utils.hooks import copy_metadata
 
 
-DEBUG = False
+DEBUG = True
 site_root = os.path.abspath(HOMEPATH)
 spec_root = os.path.abspath(SPECPATH)
 arch = 32 if ctypes.sizeof(ctypes.c_voidp) == 4 else 64
