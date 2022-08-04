@@ -1,9 +1,6 @@
-name: Build Windows 32bit exe
+name: Test Windows 64bit exe
 
-on:
-  push:
-  pull_request:
-    branches: 'v0.6'
+on: push
 
 jobs:
   build-exe:
@@ -22,18 +19,23 @@ jobs:
     - name: Build
       id: build
       run: |
-        xvfb-run i386 buildscripts/winbuild.sh
+        xvfb-run -a buildscripts/winbuild.sh
         echo "::set-output name=asset_path::packages/pyinstaller/dist/*.exe"
-        sha256sum ${{ steps.build.outputs.asset_path }} >> checksum.txt
-    - name: Release Continuous
-      if: ${{ github.ref == 'refs/heads/ci' }}
-      uses: softprops/action-gh-release@master
+    - name: Create build-output artifact
+      uses: actions/upload-artifact@v3
       with:
-        prerelease: true
-        tag_name: continuous
-        target_commitish: ${{ github.sha }}
-        body_path: checksum.txt
-        append_body: true
-        files: ${{ steps.build.outputs.asset_path }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: build-output
+        path: ${{ steps.build.outputs.asset_path }}
+
+  test-exe:
+
+    runs-on: windows-2019
+    needs: build-exe
+
+    steps:
+    - name: Download
+      uses: actions/download-artifact@v3
+      with:
+        name: build-output
+    - name: Test
+      run: .\Bitmessage_x64_0.6.3.2.exe -t
