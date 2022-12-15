@@ -16,13 +16,22 @@ logger = logging.getLogger('default')
 frozen = getattr(sys, 'frozen', None)
 
 
+def tryFixWindowsPath(path):
+    """Fix windows pathname for python27"""
+    try:
+        return path.decode(sys.getfilesystemencoding(), 'ignore')
+    except AttributeError:
+        return path
+
+
 def lookupExeFolder():
     """Returns executable folder path"""
     if frozen:
         exeFolder = (
             # targetdir/Bitmessage.app/Contents/MacOS/Bitmessage
             os.path.dirname(sys.executable).split(os.path.sep)[0]
-            if frozen == "macosx_app" else os.path.dirname(sys.executable))
+            if frozen == "macosx_app" else
+            tryFixWindowsPath(os.path.dirname(sys.executable)))
     elif os.getenv('APPIMAGE'):
         exeFolder = os.path.dirname(os.getenv('APPIMAGE'))
     elif __file__:
@@ -32,41 +41,64 @@ def lookupExeFolder():
     return exeFolder + os.path.sep
 
 
-def lookupAppdataFolder():
-    """Returns path of the folder where application data is stored"""
-    APPNAME = "PyBitmessage"
-    dataFolder = os.environ.get('BITMESSAGE_HOME')
-    if dataFolder:
-        if dataFolder[-1] not in (os.path.sep, os.path.altsep):
-            dataFolder += os.path.sep
-    elif sys.platform == 'darwin':
+def lookupUserconfigDir(appname):
+    """Lookup user data directory for the *appname* application"""
+    try:
+        from appdirs import user_config_dir
+        return user_config_dir(appname, False, roaming=True) + os.path.sep
+    except ImportError:
+        pass
+
+    if sys.platform == 'darwin':
         try:
             dataFolder = os.path.join(
                 os.environ['HOME'],
-                'Library/Application Support/', APPNAME
-            ) + '/'
-
+                "Library/Application Support/", appname)
         except KeyError:
             sys.exit(
-                'Could not find home folder, please report this message'
-                ' and your OS X version to the BitMessage Github.')
+                "Could not find home folder, please report this message"
+                " and your OS X version to the BitMessage Github.")
     elif sys.platform.startswith('win'):
-        dataFolder = os.path.join(os.environ['APPDATA'], APPNAME) + os.path.sep
+        dataFolder = tryFixWindowsPath(os.path.join(
+            os.getenv('APPDATA'), appname
+        ))
     else:
+        dataFolder = os.path.join(os.getenv('HOME'), '.%s' % appname)
+
+    return dataFolder + os.path.sep
+
+
+def lookupAppdataFolder():
+    """Returns path of the folder where application data is stored"""
+    APPNAME = "PyBitmessage"
+
+    dataFolder = os.getenv('BITMESSAGE_HOME')
+    if sys.platform.startswith('win'):
+        dataFolder = tryFixWindowsPath(dataFolder)
+    if dataFolder:
+        if dataFolder[-1] not in (os.path.sep, os.path.altsep):
+            dataFolder += os.path.sep
+        return dataFolder
+
+    dataFolder = lookupUserconfigDir(APPNAME)
+    # Try to follow XDG spec on Linux, Unix or BSD
+    # TODO: use pyxdg
+    if os.name == 'posix' and sys.platform != 'darwin':
         try:
-            dataFolder = os.path.join(os.environ['XDG_CONFIG_HOME'], APPNAME)
+            datadir = os.path.join(os.environ['XDG_CONFIG_HOME'], APPNAME)
         except KeyError:
-            dataFolder = os.path.join(os.environ['HOME'], '.config', APPNAME)
+            datadir = os.path.join(os.environ['HOME'], '.config', APPNAME)
 
         # Migrate existing data to the proper location
         # if this is an existing install
         try:
-            move(os.path.join(os.environ['HOME'], '.%s' % APPNAME), dataFolder)
+            move(dataFolder, datadir)
+            dataFolder = datadir + os.path.sep
             logger.info('Moving data folder to %s', dataFolder)
         except IOError:
             # Old directory may not exist.
             pass
-        dataFolder = dataFolder + os.path.sep
+
     return dataFolder
 
 
