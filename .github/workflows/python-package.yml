@@ -27,7 +27,7 @@ jobs:
         }
         Wait-Job -Name WebReq
         Start-Process -FilePath Win64OpenSSL-1_0_2t.exe -ArgumentList '/q /norestart /silent /verysilent /sp- /suppressmsgboxes /dir=C:\OpenSSL-Win64' -Wait
-        Start-Process msiexec -ArgumentList '-i VCForPython27.msi /qn /norestart'  -Wait
+        msiexec -i VCForPython27.msi /qn /norestart
     - name: Install python dependencies
       env:
         OPENSSL_DIR: "c:\\OpenSSL-Win64"
@@ -37,6 +37,5 @@ jobs:
         python setup.py install
     - name: Test
       run: |
-        python checkdeps.py
         python src/bitmessagemain.py -t
         python -bm tests
