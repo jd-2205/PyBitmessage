@@ -1299,15 +1299,6 @@ class BMRPCDispatcher(object):
         objectType = unpack('>I', encryptedPayload[8:12])[0]
         TTL = expiresTime - time.time() + 300  # a bit of extra padding
         # Let us do the POW and attach it to the front
-        target = 2**64 / (
-            requiredAverageProofOfWorkNonceTrialsPerByte * (
-                len(encryptedPayload) + 8
-                + requiredPayloadLengthExtraBytes + ((
-                    TTL * (
-                        len(encryptedPayload) + 8
-                        + requiredPayloadLengthExtraBytes
-                    )) / (2 ** 16))
-            ))
         logger.debug("expiresTime: %s", expiresTime)
         logger.debug("TTL: %s", TTL)
         logger.debug("objectType: %s", objectType)
@@ -1320,8 +1311,11 @@ class BMRPCDispatcher(object):
             / defaults.networkDefaultPayloadLengthExtraBytes,
         )
         powStartTime = time.time()
-        initialHash = hashlib.sha512(encryptedPayload).digest()
-        trialValue, nonce = proofofwork.run(target, initialHash)
+        trialValue, nonce = proofofwork.calculate(
+            encryptedPayload, TTL,
+            requiredAverageProofOfWorkNonceTrialsPerByte,
+            requiredPayloadLengthExtraBytes
+        )
         logger.info(
             '(For msg message via API) Found proof of work %s\nNonce: %s\n'
             'POW took %s seconds. %s nonce trials per second.',
