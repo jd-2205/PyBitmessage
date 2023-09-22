@@ -16,7 +16,7 @@ jobs:
         sudo apt install -y --allow-downgrades libpcre2-8-0=10.34-7
         sudo apt-get install -yq --no-install-recommends \
         build-essential libcap-dev libssl-dev python-all-dev \
-        wine-stable winetricks wine32 wine64 mingw-w64 xvfb
+        wine-stable winetricks libwine:i386 wine32 wine64 mingw-w64 xvfb
     - name: Build
       id: build
       run: |
