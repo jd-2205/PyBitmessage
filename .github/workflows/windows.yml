@@ -29,11 +29,11 @@ jobs:
       env:
         OPENSSL_DIR: "c:\\OpenSSL-Win64"
       run: |
-        python2 -m pip install --upgrade pip
-        python2 -m pip install -r requirements.txt
-        python2 -m pip install msgpack-python .[json,xml]
-        python2 setup.py egg_info
-        python2 -m pip install -I pyinstaller==3.5
+        C:\\Python27\\python.exe -m pip install --upgrade pip
+        C:\\Python27\\python.exe -m pip install -r requirements.txt
+        C:\\Python27\\python.exe -m pip install msgpack-python .[json,xml]
+        C:\\Python27\\python.exe setup.py egg_info
+        C:\\Python27\\python.exe -m pip install -I pyinstaller==3.5
     - name: Build
       run: |
-        pyinstaller packages/pyinstaller/bitmessagemain.spec
+        C:\\Python27\\python.exe -m pyinstaller packages/pyinstaller/bitmessagemain.spec
