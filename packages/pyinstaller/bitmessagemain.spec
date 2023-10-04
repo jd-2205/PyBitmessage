@@ -7,7 +7,7 @@ import time
 from PyInstaller.utils.hooks import copy_metadata
 
 
-DEBUG = False
+DEBUG = True
 site_root = os.path.abspath(HOMEPATH)
 spec_root = os.path.abspath(SPECPATH)
 arch = 32 if ctypes.sizeof(ctypes.c_voidp) == 4 else 64
@@ -35,8 +35,7 @@ a = Analysis(
     datas=[
         (os.path.join(spec_root[:-20], 'pybitmessage.egg-info') + '/*',
             'pybitmessage.egg-info')
-    ] + copy_metadata('msgpack-python') + copy_metadata('qrcode')
-    + copy_metadata('six') + copy_metadata('stem'),
+    ] + copy_metadata('msgpack-python') + copy_metadata('six')
     pathex=[outPath],
     hiddenimports=[
         'bitmessageqt.languagebox', 'pyopencl', 'numpy', 'win32com',
@@ -86,7 +85,7 @@ a.datas += [
 ]
 
 # append the translations directory
-a.datas += addTranslations()
+# a.datas += addTranslations()
 a.datas += [('default.ini', os.path.join(srcPath, 'default.ini'), 'DATA')]
 
 excluded_binaries = [
