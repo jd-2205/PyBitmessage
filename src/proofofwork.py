@@ -397,5 +397,5 @@ def init():
                     'Failed to setup bmpow lib %s', bso, exc_info=True)
                 return
 
-    if bmpow is None:
-        buildCPoW()
+    if bmpow is None and sys.hexversion < 0x3000000:
+        buildCPoW()  # beware of recursion!
