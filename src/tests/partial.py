@@ -7,6 +7,8 @@ import unittest
 
 from pybitmessage import pathmagic
 
+from .common import cleanup
+
 
 class TestPartialRun(unittest.TestCase):
     """
@@ -37,6 +39,7 @@ class TestPartialRun(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.state.shutdown = 1
+        cleanup()
         # deactivate pathmagic
         os.chdir(cls.dirs[0])
         sys.path.remove(cls.dirs[1])
