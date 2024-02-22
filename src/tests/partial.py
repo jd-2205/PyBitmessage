@@ -19,13 +19,15 @@ class TestPartialRun(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # pylint: disable=import-outside-toplevel,unused-import
-        cls.dirs = (os.path.abspath(os.curdir), pathmagic.setup())
+        if sys.hexversion < 0x3000000:
+            cls.dirs = (os.path.abspath(os.curdir), pathmagic.setup())
 
         import bmconfigparser
         import state
 
         from debug import logger  # noqa:F401 pylint: disable=unused-variable
         if sys.hexversion >= 0x3000000:
+            cls.dirs = None
             # pylint: disable=no-name-in-module,relative-import
             from mock import network as network_mock
             import network
@@ -40,8 +42,8 @@ class TestPartialRun(unittest.TestCase):
     def tearDownClass(cls):
         cls.state.shutdown = 1
         cleanup()
-        # deactivate pathmagic
-        os.chdir(cls.dirs[0])
-        sys.path.remove(cls.dirs[1])
+        if cls.dirs:  # deactivate pathmagic
+            os.chdir(cls.dirs[0])
+            sys.path.remove(cls.dirs[1])
         time.sleep(5)
         cls.state.shutdown = 0
