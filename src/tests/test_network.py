@@ -20,6 +20,7 @@ class TestNetwork(TestPartialRun):
 
         cls.config.set('bitmessagesettings', 'sendoutgoingconnections', 'True')
         cls.config.set('bitmessagesettings', 'udp', 'True')
+        cls.config.set('bitmessagesettings', 'port', '8448')
 
         # config variable is still used inside of the network ):
         import network
