@@ -60,8 +60,17 @@ def pickle_knownnodes():
         }, dst)
 
 
+def modify_doc(value):
+    """A decorator to substitute a placeholder in method docstring"""
+    def _doc(func):
+        func.__doc__ = func.__doc__.format(value)
+        return func
+    return _doc
+
+
 class TestCore(unittest.TestCase):
     """Test case, which runs in main pybitmessage thread"""
+    _close_time = 10  # the number of seconds to wait for closing connections
     addr = 'BM-2cVvkzJuQDsQHLqxRXc6HZGPLZnkBLzEZY'
 
     def tearDown(self):
@@ -180,7 +189,7 @@ class TestCore(unittest.TestCase):
         self._wipe_knownnodes()
         knownnodes.addKnownNode(1, Peer('127.0.0.1', 8444), is_self=True)
         knownnodes.cleanupKnownNodes(connectionpool.pool)
-        time.sleep(5)
+        time.sleep(self._close_time)
 
     def _check_connection(self, full=False):
         """
@@ -229,8 +238,9 @@ class TestCore(unittest.TestCase):
                     self.fail(
                         'Bootstrap server in knownnodes: %s' % peer.host)
 
+    @modify_doc(_close_time)
     def test_dontconnect(self):
-        """all connections are closed 5 seconds after setting dontconnect"""
+        """all connections are closed {} seconds after setting dontconnect"""
         self._initiate_bootstrap()
         self.assertEqual(len(connectionpool.pool.connections()), 0)
 

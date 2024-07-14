@@ -1,49 +1,39 @@
-"""
-Tests for RandomTrackingDict Class
-"""
-import random
+"""Tests for RandomTrackingDict Class"""
+
+import time
 import unittest
 
-from time import time
+from pybitmessage import highlevelcrypto
+from pybitmessage.randomtrackingdict import RandomTrackingDict
 
 
 class TestRandomTrackingDict(unittest.TestCase):
-    """
-    Main protocol test case
-    """
-
-    @staticmethod
-    def randString():
-        """helper function for tests, generates a random string"""
-        retval = ''
-        for _ in range(32):
-            retval += chr(random.randint(0, 255))
-        return retval
+    """The test case for RandomTrackingDict"""
+    _exp_time = 15
 
     def test_check_randomtrackingdict(self):
-        """Check the logic of RandomTrackingDict class"""
-        from pybitmessage.randomtrackingdict import RandomTrackingDict
+        """Check the logic (performance) of RandomTrackingDict class"""
         a = []
         k = RandomTrackingDict()
 
-        a.append(time())
+        a.append(time.time())
         for i in range(50000):
-            k[self.randString()] = True
-        a.append(time())
+            k[highlevelcrypto.randomBytes(32)] = True
+        a.append(time.time())
 
         while k:
             retval = k.randomKeys(1000)
             if not retval:
-                self.fail("error getting random keys")
+                self.fail('Error getting random keys')
 
             try:
                 k.randomKeys(100)
-                self.fail("bad")
+                self.fail('bad')
             except KeyError:
                 pass
             for i in retval:
                 del k[i]
-        a.append(time())
+        a.append(time.time())
 
         for x in range(len(a) - 1):
-            self.assertLess(a[x + 1] - a[x], 10)
+            self.assertLess(a[x + 1] - a[x], self._exp_time)

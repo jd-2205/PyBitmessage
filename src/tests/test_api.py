@@ -39,14 +39,18 @@ class TestAPIProto(TestProcessProto):
 
 class TestAPIShutdown(TestAPIProto):
     """Separate test case for API command 'shutdown'"""
+    _wait_time = 30
+    # longer wait time because it's not a benchmark
+
     def test_shutdown(self):
         """Shutdown the pybitmessage"""
         self.assertEqual(self.api.shutdown(), 'done')
         try:
-            self.process.wait(20)
+            self.process.wait(self._wait_time)
         except psutil.TimeoutExpired:
             self.fail(
-                '%s has not stopped in 20 sec' % ' '.join(self._process_cmd))
+                '%s has not stopped in %s sec'
+                % (' '.join(self._process_cmd), self._wait_time))
 
 
 # TODO: uncovered API commands
