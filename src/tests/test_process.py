@@ -102,7 +102,7 @@ class TestProcessProto(unittest.TestCase):
         return True
 
     @classmethod
-    def _kill_process(cls, timeout=5):
+    def _kill_process(cls, timeout=10):
         try:
             cls.process.send_signal(signal.SIGKILL)
             cls.process.wait(timeout)

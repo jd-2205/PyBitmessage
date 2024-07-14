@@ -17,8 +17,8 @@ class TestProcessConfig(TestProcessProto):
 
     def test_config_defaults(self):
         """Test settings in the generated config"""
-        self._stop_process()
-        self._kill_process()
+        if not self._stop_process():
+            self._kill_process()
         config.read(os.path.join(self.home, 'keys.dat'))
 
         self.assertEqual(config.safeGetInt(
