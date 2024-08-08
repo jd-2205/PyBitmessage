@@ -4,13 +4,19 @@ Various tests for config
 
 import os
 import tempfile
+import unittest
+
 from pybitmessage.bmconfigparser import config
+
 from .test_process import TestProcessProto
 from .common import skip_python3
 
 skip_python3()
 
 
+@unittest.skipIf(
+    os.getenv('SERVER', '').endswith('bitmessage.org'),
+    'gitea has a subprocess bug')
 class TestProcessConfig(TestProcessProto):
     """A test case for keys.dat"""
     home = tempfile.mkdtemp()

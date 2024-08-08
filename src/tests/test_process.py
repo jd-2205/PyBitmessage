@@ -182,6 +182,9 @@ class TestProcessProto(unittest.TestCase):
             msg)
 
 
+@unittest.skipIf(
+    os.getenv('SERVER', '').endswith('bitmessage.org'),
+    'gitea has a subprocess bug')
 class TestProcessShutdown(TestProcessProto):
     """Separate test case for SIGTERM"""
     def test_shutdown(self):

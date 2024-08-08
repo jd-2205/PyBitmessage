@@ -4,7 +4,9 @@ Tests using API.
 
 import base64
 import json
+import os
 import time
+import unittest
 from binascii import hexlify
 
 import psutil
@@ -37,6 +39,9 @@ class TestAPIProto(TestProcessProto):
             time.sleep(1)
 
 
+@unittest.skipIf(
+    os.getenv('SERVER', '').endswith('bitmessage.org'),
+    'gitea has a subprocess bug')
 class TestAPIShutdown(TestAPIProto):
     """Separate test case for API command 'shutdown'"""
     _wait_time = 30
